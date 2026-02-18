@@ -11,9 +11,10 @@ class FileService {
             throw new Error('Directory does not exist');
         }
         const files = await readdir(folderPath);
-        return files.filter(file =>
-            path.extname(file).toLowerCase() === '.heic'
-        );
+        return files.filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            return ext === '.heic' || ext === '.cr2';
+        });
     }
 
     async ensureDirectoryExists(dirPath) {

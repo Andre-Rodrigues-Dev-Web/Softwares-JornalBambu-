@@ -3,13 +3,14 @@ const path = require('path');
 const { promisify } = require('util');
 const sharp = require('sharp');
 const heicConvert = require('heic-convert');
+const dcraw = require('dcraw');
 const FileService = require('./FileService');
 
 const readFile = promisify(fs.readFile);
 
 class ImageService {
     async convertDirectory(folderPath, outputFormat, quality, onProgress) {
-        const heicFiles = await FileService.scanDirectory(folderPath);
+        const files = await FileService.scanDirectory(folderPath);
         const outputDir = path.join(folderPath, 'converted');
 
         await FileService.ensureDirectoryExists(outputDir);
@@ -17,7 +18,7 @@ class ImageService {
         const results = [];
         let successCount = 0;
 
-        for (const file of heicFiles) {
+        for (const file of files) {
             const inputPath = path.join(folderPath, file);
             const outputFilename = path.basename(file, path.extname(file)) + '.' + outputFormat;
             const outputPath = path.join(outputDir, outputFilename);
@@ -37,7 +38,7 @@ class ImageService {
         }
 
         return {
-            total: heicFiles.length,
+            total: files.length,
             converted: successCount,
             outputDir,
             results
@@ -46,21 +47,53 @@ class ImageService {
 
     async processSingleFile(inputPath, outputPath, format, quality) {
         const inputBuffer = await readFile(inputPath);
+        const ext = path.extname(inputPath).toLowerCase();
 
-        // Decode HEIC
         let imageBuffer;
-        try {
-            imageBuffer = await sharp(inputBuffer).toBuffer();
-        } catch (e) {
-            // console.log(`Sharp failed to decode, trying heic-convert fallback...`);
-            imageBuffer = await heicConvert({
-                buffer: inputBuffer,
-                format: 'PNG'
-            });
+
+        if (ext === '.cr2') {
+            // Convert CR2 to TIFF buffer using dcraw
+            // The 'dcraw' npm package exports a function that takes a buffer and returns a buffer (TIFF)
+            try {
+                imageBuffer = dcraw(inputBuffer, { verbose: true, useTiff: true });
+            } catch (e) {
+                throw new Error('Failed to decode CR2: ' + e.message);
+            }
+        } else {
+            // HEIC or other
+            try {
+                imageBuffer = await sharp(inputBuffer).toBuffer();
+            } catch (e) {
+                // Fallback for HEIC if sharp fails
+                if (ext === '.heic') {
+                    imageBuffer = await heicConvert({
+                        buffer: inputBuffer,
+                        format: 'PNG'
+                    });
+                } else {
+                    throw e;
+                }
+            }
         }
 
         // Optimize with sharp
         let pipeline = sharp(imageBuffer);
+        const metadata = await pipeline.metadata();
+
+        // Watermark Logic
+        const watermarkPath = path.join(process.cwd(), 'public', 'logo.png');
+        if (fs.existsSync(watermarkPath)) {
+            const watermarkWidth = Math.round(metadata.width * 0.2); // 20% of image width
+            const watermarkBuffer = await sharp(watermarkPath)
+                .resize({ width: watermarkWidth })
+                .toBuffer();
+
+            pipeline = pipeline.composite([{
+                input: watermarkBuffer,
+                gravity: 'southeast',
+                blend: 'over'
+            }]);
+        }
 
         if (format === 'jpeg') {
             pipeline = pipeline.jpeg({
