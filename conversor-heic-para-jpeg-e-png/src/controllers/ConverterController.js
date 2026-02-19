@@ -5,12 +5,12 @@ class ConverterController {
 
     async scan(req, res) {
         try {
-            const { folderPath } = req.body;
+            const { folderPath, inputType } = req.body;
             if (!folderPath) {
                 return res.status(400).json({ error: 'Folder path is required' });
             }
 
-            const files = await FileService.scanDirectory(folderPath);
+            const files = await FileService.scanDirectory(folderPath, inputType);
             res.json({ count: files.length, files: files });
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -18,7 +18,7 @@ class ConverterController {
     }
 
     async convertStream(req, res) {
-        const { folderPath, outputFormat, quality } = req.query;
+        const { folderPath, outputFormat, quality, inputType } = req.query;
 
         console.log("Starting stream conversion...");
 
@@ -40,6 +40,7 @@ class ConverterController {
                 folderPath,
                 outputFormat,
                 quality,
+                inputType,
                 (progressData) => {
                     sendEvent(progressData);
                 }

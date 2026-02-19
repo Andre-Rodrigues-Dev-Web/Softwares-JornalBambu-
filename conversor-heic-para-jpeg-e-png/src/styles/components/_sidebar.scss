@@ -1,0 +1,66 @@
+.sidebar {
+    width: $sidebar-width;
+    background: $sidebar-bg;
+    border-right: 1px solid $glass-border;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    position: relative;
+    z-index: 100;
+
+    &__header {
+        margin-bottom: 3rem;
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, $primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    }
+
+    &__nav {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    &__nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        color: $text-muted;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+
+        i {
+            font-size: 1.1rem;
+        }
+
+        &:hover,
+        &--active {
+            background: rgba(99, 102, 241, 0.1);
+            color: $text-main;
+        }
+
+        &--active {
+            border-left: 3px solid $primary;
+        }
+    }
+
+    &__footer {
+        margin-top: auto;
+        font-size: 0.75rem;
+        color: $text-muted;
+        opacity: 0.6;
+    }
+}

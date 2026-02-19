@@ -1,0 +1,23 @@
+<section id="metadata-view" class="tool-view">
+    <header>
+        <h1>Metadados <span class="badge">Scrubber</span></h1>
+        <p>Visualize e limpe informações EXIF/GPS de fotos para segurança digital.</p>
+    </header>
+    <div class="card card--glass">
+        <div class="card__empty-state">
+            <i class="fas fa-shield-alt"></i>
+            <p>Selecione uma pasta para analisar os dados ocultos das imagens.</p>
+        </div>
+        <div class="form-group">
+            <label for="metaSource" class="form-group__label">Diretório das Fotos</label>
+            <input type="text" id="metaSource" placeholder="C:\Users\Jornalista\Desktop\Upload" class="field">
+        </div>
+        <div class="form-group__action-wrapper">
+            <button id="metaAnalyze" class="btn btn--secondary" style="width: 100%;">Analisar Impacto</button>
+            <button id="metaClean" class="btn btn--primary" style="width: 100%;" disabled>
+                <span class="btn__text">Limpar Todos os Metadados</span>
+                <div class="btn__spinner"></div>
+            </button>
+        </div>
+    </div>
+</section>

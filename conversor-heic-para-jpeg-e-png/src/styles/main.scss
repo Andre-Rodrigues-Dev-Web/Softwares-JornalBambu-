@@ -1,0 +1,19 @@
+@import 'abstracts/variables';
+@import 'abstracts/mixins';
+@import 'base/reset';
+@import 'layout/layout';
+@import 'components/sidebar';
+@import 'components/card';
+@import 'components/buttons';
+@import 'components/forms';
+@import 'components/stats';
+@import 'components/social';
+
+.scan-stats {
+    background: rgba(99, 102, 241, 0.1);
+    border-left: 3px solid #6366f1; // Using hex temporarily if variable fails
+    padding: 0.8rem;
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}

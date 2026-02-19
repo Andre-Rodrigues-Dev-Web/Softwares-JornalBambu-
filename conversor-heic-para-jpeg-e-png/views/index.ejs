@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jornal Bambuí Toolbox</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-newspaper"></i> Bambuí Hub</h2>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#" class="nav-item active" data-view="conversores-view">
+                    <i class="fas fa-sync"></i>
+                    <span>Conversores</span>
+                </a>
+                <a href="#" class="nav-item" data-view="redacao-view">
+                    <i class="fas fa-pen-nib"></i>
+                    <span>Redação</span>
+                </a>
+                <a href="#" class="nav-item" data-view="social-view">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Social Media</span>
+                </a>
+                <a href="#" class="nav-item" data-view="metadata-view">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Metadados</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>v2.0 Beta - Jornal Bambuí</p>
+            </div>
+        </aside>
+
+        <!-- Main Content area -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <%- include('partials/conversores') %>
+                    <%- include('partials/redacao') %>
+                        <%- include('partials/social') %>
+                            <%- include('partials/metadata') %>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

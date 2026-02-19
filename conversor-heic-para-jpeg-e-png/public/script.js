@@ -12,7 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressPercent = document.getElementById('progressPercent');
     const progressStatus = document.getElementById('progressStatus');
     const progressLogs = document.getElementById('progressLogs');
-    const radioCards = document.querySelectorAll('.radio-card');
+
+    // Select Elements
+    const inputTypeSelect = document.getElementById('inputType');
+    const outputFormatSelect = document.getElementById('outputFormat');
 
     let totalFiles = 0;
     let convertedCount = 0;
@@ -22,19 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
         qualityValue.textContent = `${e.target.value}%`;
     });
 
-    // Radio selection styling
-    radioCards.forEach(card => {
-        card.addEventListener('click', () => {
-            radioCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            const radio = card.querySelector('input[type="radio"]');
-            radio.checked = true;
-        });
-    });
-
     // Scan Directory
     scanBtn.addEventListener('click', async () => {
         const path = folderInput.value.trim();
+        const inputType = inputTypeSelect.value;
+
         if (!path) {
             alert('Por favor insira um caminho de pasta válido.');
             return;
@@ -47,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('http://localhost:3000/api/scan-directory', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ folderPath: path })
+                body: JSON.stringify({ folderPath: path, inputType })
             });
             const data = await response.json();
 
@@ -59,10 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (totalFiles > 0) {
                 convertBtn.disabled = false;
-                progressStatus.textContent = `${totalFiles} arquivos prontos para conversão.`;
+                progressStatus.textContent = `${totalFiles} arquivos encontrados (${inputType === 'all' ? 'HEIC/CR2' : inputType.toUpperCase()}) prontos para conversão.`;
             } else {
                 convertBtn.disabled = true;
-                progressStatus.textContent = 'Nenhum arquivo .HEIC encontrado nesta pasta.';
+                progressStatus.textContent = 'Nenhum arquivo encontrado para o tipo selecionado.';
             }
 
         } catch (error) {
@@ -77,14 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const path = folderInput.value.trim();
-        const format = document.querySelector('input[name="format"]:checked').value;
+        const format = outputFormatSelect.value;
+        const inputType = inputTypeSelect.value;
         const quality = qualityInput.value;
 
         if (!path) return;
 
         // Reset State
         convertBtn.disabled = true;
-        convertBtn.classList.add('loading');
+        convertBtn.classList.add('btn--loading');
         progressArea.style.display = 'block';
         progressLogs.innerHTML = '';
         progressBar.style.width = '0%';
@@ -96,7 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams({
             folderPath: path,
             outputFormat: format,
-            quality: quality
+            quality: quality,
+            inputType: inputType
         });
 
         const eventSource = new EventSource(`http://localhost:3000/api/convert-stream?${params.toString()}`);
@@ -147,13 +144,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addLogItem(filename, status, statusText) {
         const item = document.createElement('div');
-        item.className = `log-item ${status}`;
+        item.className = `log-item log-item--${status}`;
         item.id = `log-${filename.replace(/\W/g, '_')}`; // Safe ID
 
         item.innerHTML = `
-            <div class="status-icon"></div>
-            <span class="log-filename">${filename}</span>
-            <span class="log-status">${statusText}</span>
+            <div class="log-item__icon"></div>
+            <span class="log-item__filename">${filename}</span>
+            <span class="log-item__status">${statusText}</span>
         `;
 
         progressLogs.prepend(item); // Add to top
@@ -163,14 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const safeId = `log-${filename.replace(/\W/g, '_')}`;
         const item = document.getElementById(safeId);
         if (item) {
-            item.className = `log-item ${status}`;
-            item.querySelector('.log-status').textContent = statusText;
+            item.className = `log-item log-item--${status}`;
+            item.querySelector('.log-item__status').textContent = statusText;
         }
     }
 
     function finishConversion(result) {
         convertBtn.disabled = false;
-        convertBtn.classList.remove('loading');
+        convertBtn.classList.remove('btn--loading');
 
         if (result) {
             progressStatus.textContent = `Concluído! ${result.converted} arquivos salvos em ${result.outputDir}`;
@@ -180,5 +177,65 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Already handled by partial updates or error
         }
+    }
+    // --- Navigation Logic ---
+    const navItems = document.querySelectorAll('.sidebar__nav-item');
+    const toolViews = document.querySelectorAll('.tool-view');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetView = item.getAttribute('data-view');
+
+            // Toggle active nav
+            navItems.forEach(i => i.classList.remove('sidebar__nav-item--active'));
+            item.classList.add('sidebar__nav-item--active');
+
+            // Toggle active view
+            toolViews.forEach(v => v.classList.remove('tool-view--active'));
+            document.getElementById(targetView).classList.add('tool-view--active');
+        });
+    });
+
+    // --- Redação Module Logic ---
+    const redacaoText = document.getElementById('redacaoText');
+    const wordCountSpan = document.getElementById('wordCount');
+    const charCountSpan = document.getElementById('charCount');
+    const slugOutput = document.getElementById('slugOutput');
+    const copySlugBtn = document.getElementById('copySlug');
+
+    if (redacaoText) {
+        redacaoText.addEventListener('input', () => {
+            const text = redacaoText.value.trim();
+
+            // Stats
+            const words = text ? text.split(/\s+/).length : 0;
+            const chars = text.length;
+
+            wordCountSpan.textContent = words;
+            charCountSpan.textContent = chars;
+
+            // Simple Slug generator
+            const slug = text.slice(0, 100)
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z0-9\s-]/g, "")
+                .trim()
+                .replace(/\s+/g, '-');
+
+            slugOutput.value = slug;
+        });
+    }
+
+    if (copySlugBtn) {
+        copySlugBtn.addEventListener('click', () => {
+            slugOutput.select();
+            document.execCommand('copy');
+            copySlugBtn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                copySlugBtn.innerHTML = '<i class="fas fa-copy"></i>';
+            }, 2000);
+        });
     }
 });

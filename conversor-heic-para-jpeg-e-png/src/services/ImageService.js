@@ -1,16 +1,17 @@
+
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 const sharp = require('sharp');
 const heicConvert = require('heic-convert');
-const dcraw = require('dcraw');
+const exifr = require('exifr');
 const FileService = require('./FileService');
 
 const readFile = promisify(fs.readFile);
 
 class ImageService {
-    async convertDirectory(folderPath, outputFormat, quality, onProgress) {
-        const files = await FileService.scanDirectory(folderPath);
+    async convertDirectory(folderPath, outputFormat, quality, inputType, onProgress) {
+        const files = await FileService.scanDirectory(folderPath, inputType);
         const outputDir = path.join(folderPath, 'converted');
 
         await FileService.ensureDirectoryExists(outputDir);
@@ -31,7 +32,7 @@ class ImageService {
                 results.push({ file, status: 'success' });
                 if (onProgress) onProgress({ type: 'success', file });
             } catch (err) {
-                console.error(`Error converting ${file}:`, err);
+                console.error(`Error converting ${file}: `, err);
                 results.push({ file, status: 'error', error: err.message });
                 if (onProgress) onProgress({ type: 'error', file, error: err.message });
             }
@@ -52,10 +53,12 @@ class ImageService {
         let imageBuffer;
 
         if (ext === '.cr2') {
-            // Convert CR2 to TIFF buffer using dcraw
-            // The 'dcraw' npm package exports a function that takes a buffer and returns a buffer (TIFF)
+            // Try to extract embedded JPEG preview using exifr (much faster and JS-only)
             try {
-                imageBuffer = dcraw(inputBuffer, { verbose: true, useTiff: true });
+                imageBuffer = await exifr.thumbnail(inputBuffer);
+                if (!imageBuffer) {
+                    throw new Error('No embedded preview found in CR2');
+                }
             } catch (e) {
                 throw new Error('Failed to decode CR2: ' + e.message);
             }

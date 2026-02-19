@@ -1,0 +1,27 @@
+.card {
+    @include glass-card;
+    padding: 2.5rem;
+
+    &__empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: $text-muted;
+
+        i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+    }
+}
+
+.badge {
+    font-size: 0.8rem;
+    background: $primary;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+    -webkit-text-fill-color: white;
+}

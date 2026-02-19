@@ -1,0 +1,36 @@
+<section id="redacao-view" class="tool-view">
+    <header>
+        <h1>Redação <span class="badge">Texto</span></h1>
+        <p>Contagem de palavras, caracteres e gerador de slugs SEO.</p>
+    </header>
+    <div class="card card--glass">
+        <div class="form-group">
+            <label for="redacaoText" class="form-group__label">Corpo da Matéria / Título</label>
+            <textarea id="redacaoText" class="field field--textarea" rows="10"
+                placeholder="Cole o rascunho da sua matéria aqui..."></textarea>
+        </div>
+
+        <div class="stats">
+            <div class="stats__card">
+                <span class="stats__label">Palavras</span>
+                <span id="wordCount" class="stats__value">0</span>
+            </div>
+            <div class="stats__card">
+                <span class="stats__label">Caracteres</span>
+                <span id="charCount" class="stats__value">0</span>
+            </div>
+            <div class="stats__card">
+                <span class="stats__label">Tempo de Leitura</span>
+                <span id="readingTime" class="stats__value">0 min</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="slugOutput" class="form-group__label">Sugestão de Slug (SEO URL)</label>
+            <div class="form-group__action-wrapper">
+                <input type="text" id="slugOutput" class="field" readonly placeholder="slug-da-noticia-aqui">
+                <button id="copySlug" class="btn btn--icon" title="Copiar Slug"><i class="fas fa-copy"></i></button>
+            </div>
+        </div>
+    </div>
+</section>

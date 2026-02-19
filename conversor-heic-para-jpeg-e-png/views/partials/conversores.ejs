@@ -1,0 +1,67 @@
+<section id="conversores-view" class="tool-view tool-view--active">
+    <header>
+        <h1>Conversor <span class="badge">HEIC/CR2</span></h1>
+        <p>Batch processing para fotos de campo com marca d'água automática.</p>
+    </header>
+
+    <div class="card card--glass">
+        <form id="converterForm">
+            <div class="form-group">
+                <label for="folderPath" class="form-group__label">Caminho da Pasta (Source)</label>
+                <div class="form-group__action-wrapper">
+                    <input type="text" id="folderPath" class="field" placeholder="C:\Users\Fotos\Viagem" required>
+                    <button type="button" id="scanBtn"
+                        class="btn btn--secondary btn--secondary--small">Escanear</button>
+                </div>
+            </div>
+
+            <div class="scan-stats" id="scanStats" style="display: none;">
+                <span id="fileCount">0</span> arquivos encontrados
+            </div>
+
+            <div class="form-group__grid">
+                <div class="form-group">
+                    <label for="inputType" class="form-group__label">Tipo de Entrada</label>
+                    <select id="inputType" class="field field--select">
+                        <option value="all">Todos (*.HEIC, *.CR2)</option>
+                        <option value="heic">Somente HEIC</option>
+                        <option value="cr2">Somente CR2</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="outputFormat" class="form-group__label">Formato de Saída</label>
+                    <select id="outputFormat" class="field field--select">
+                        <option value="jpeg">JPEG (Web)</option>
+                        <option value="png">PNG (Lossless)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="quality" class="form-group__label">Qualidade (Otimização Web)</label>
+                <div class="range-control">
+                    <input type="range" id="quality" class="range-control__input" min="10" max="100" value="80">
+                    <span id="qualityValue">80%</span>
+                </div>
+            </div>
+
+            <button type="submit" id="convertBtn" class="btn btn--primary" disabled>
+                <span class="btn__text">Iniciar Conversão</span>
+                <div class="btn__spinner"></div>
+            </button>
+        </form>
+
+        <div id="progressArea" class="progress" style="display: none;">
+            <div class="progress__header">
+                <span>Convertendo...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress__track">
+                <div class="progress__fill" id="progressBar"></div>
+            </div>
+            <p id="progressStatus" class="progress__status">Aguardando início...</p>
+            <div id="progressLogs" class="progress__logs"></div>
+        </div>
+    </div>
+</section>
